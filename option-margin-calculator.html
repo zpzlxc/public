@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>期权保证金计算器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#10b981',
+                        accent: '#8b5cf6',
+                        neutral: '#1f2937',
+                        'neutral-light': '#f3f4f6',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            }
+            .input-focus {
+                @apply focus:ring-2 focus:ring-primary/50 focus:border-primary;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-neutral">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- 页面标题 -->
+        <header class="text-center mb-10">
+            <h1 class="text-[clamp(1.8rem,5vw,2.5rem)] font-bold text-neutral mb-2">期权保证金计算器</h1>
+            <p class="text-gray-600 max-w-2xl mx-auto">根据交易所规则计算期权卖方所需保证金，支持看涨和看跌期权</p>
+        </header>
+
+        <div class="grid md:grid-cols-5 gap-8">
+            <!-- 输入表单 -->
+            <div class="md:col-span-3 bg-white rounded-xl p-6 card-shadow">
+                <h2 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fa fa-calculator text-primary mr-2"></i>参数设置
+                </h2>
+                
+                <form id="calculator-form" class="space-y-5">
+                    <!-- 期权类型选择 -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">期权类型</label>
+                        <div class="flex space-x-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="optionType" value="call" checked 
+                                    class="w-4 h-4 text-primary focus:ring-primary border-gray-300">
+                                <span class="ml-2">看涨期权</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="optionType" value="put" 
+                                    class="w-4 h-4 text-primary focus:ring-primary border-gray-300">
+                                <span class="ml-2">看跌期权</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- 标的期货结算价 -->
+                    <div>
+                        <label for="futurePrice" class="block text-sm font-medium text-gray-700 mb-1">
+                            标的期货结算价 (元)
+                        </label>
+                        <input type="number" id="futurePrice" name="futurePrice" step="0.01" value="9787"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition duration-200">
+                    </div>
+                    
+                    <!-- 期权行权价 -->
+                    <div>
+                        <label for="strikePrice" class="block text-sm font-medium text-gray-700 mb-1">
+                            期权行权价 (元)
+                        </label>
+                        <input type="number" id="strikePrice" name="strikePrice" step="0.01" value="10500"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition duration-200">
+                    </div>
+                    
+                    <!-- 期权结算价 -->
+                    <div>
+                        <label for="optionPrice" class="block text-sm font-medium text-gray-700 mb-1">
+                            期权合约结算价 (元)
+                        </label>
+                        <input type="number" id="optionPrice" name="optionPrice" step="0.01" value="69"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition duration-200">
+                    </div>
+                    
+                    <!-- 合约交易单位 -->
+                    <div>
+                        <label for="contractUnit" class="block text-sm font-medium text-gray-700 mb-1">
+                            合约交易单位
+                        </label>
+                        <div class="flex">
+                            <input type="number" id="contractUnit" name="contractUnit" value="15"
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg input-focus transition duration-200">
+                            <span class="flex items-center px-4 py-2 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg">
+                                千克/手
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- 保证金比例 -->
+                    <div>
+                        <label for="marginRatio" class="block text-sm font-medium text-gray-700 mb-1">
+                            标的期货保证金比例
+                        </label>
+                        <div class="flex">
+                            <input type="number" id="marginRatio" name="marginRatio" step="0.01" value="0.14"
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg input-focus transition duration-200">
+                            <span class="flex items-center px-4 py-2 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg">
+                                （如14%填0.14）
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <button type="button" id="calculate-btn" 
+                        class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center">
+                        <i class="fa fa-calculator mr-2"></i>计算保证金
+                    </button>
+                </form>
+            </div>
+            
+            <!-- 计算结果 -->
+            <div class="md:col-span-2">
+                <div class="bg-white rounded-xl p-6 card-shadow h-full flex flex-col">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fa fa-bar-chart text-accent mr-2"></i>计算结果
+                    </h2>
+                    
+                    <div id="result-container" class="flex-1 flex flex-col justify-between">
+                        <!-- 结果将在这里显示 -->
+                        <div class="space-y-4 mb-6">
+                            <div class="p-3 bg-neutral-light rounded-lg">
+                                <div class="text-sm text-gray-600">标的期货交易保证金</div>
+                                <div id="future-margin" class="text-lg font-medium">20,552.70 元</div>
+                            </div>
+                            
+                            <div class="p-3 bg-neutral-light rounded-lg">
+                                <div class="text-sm text-gray-600">期权结算价部分</div>
+                                <div id="option-settlement-part" class="text-lg font-medium">1,035.00 元</div>
+                            </div>
+                            
+                            <div class="p-3 bg-neutral-light rounded-lg">
+                                <div class="text-sm text-gray-600">虚值额</div>
+                                <div id="intrinsic-value" class="text-lg font-medium">10,695.00 元</div>
+                            </div>
+                        </div>
+                        
+                        <!-- 最终保证金 -->
+                        <div class="p-4 bg-primary/10 border border-primary/20 rounded-xl">
+                            <div class="text-sm text-gray-600">期权卖方保证金</div>
+                            <div id="final-margin" class="text-2xl font-bold text-primary mt-1">16,240.20 元</div>
+                            <div class="text-xs text-gray-500 mt-1">每手合约所需保证金</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 计算说明 -->
+        <div class="mt-8 bg-white rounded-xl p-6 card-shadow">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fa fa-info-circle text-secondary mr-2"></i>计算说明
+            </h2>
+            
+            <div class="space-y-3 text-gray-700">
+                <p>根据上海期货交易所规则，期权卖方保证金计算公式为：</p>
+                <div class="p-3 bg-neutral-light rounded-lg font-mono text-sm overflow-x-auto">
+                    保证金 = MAX[期权合约结算价×交易单位 + 标的期货交易保证金 - (1/2)×虚值额, 
+                    期权合约结算价×交易单位 + (1/2)×标的期货交易保证金]
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <h3 class="font-medium mb-2">看涨期权</h3>
+                        <p>虚值额 = max(行权价 - 期货结算价, 0) × 交易单位</p>
+                    </div>
+                    <div>
+                        <h3 class="font-medium mb-2">看跌期权</h3>
+                        <p>虚值额 = max(期货结算价 - 行权价, 0) × 交易单位</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="mt-10 text-center text-gray-500 text-sm">
+            <p>© 2023 期权保证金计算器 | 数据仅供参考，实际以交易所计算为准</p>
+        </footer>
+    </div>
+
+    <script>
+        // 初始化计算
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateMargin();
+            
+            // 绑定计算按钮事件
+            document.getElementById('calculate-btn').addEventListener('click', calculateMargin);
+            
+            // 输入框变化时自动重新计算
+            const inputFields = document.querySelectorAll('input[type="number"]');
+            inputFields.forEach(input => {
+                input.addEventListener('input', calculateMargin);
+            });
+            
+            // 期权类型变化时自动重新计算
+            const radioButtons = document.querySelectorAll('input[name="optionType"]');
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', calculateMargin);
+            });
+        });
+        
+        // 计算保证金函数
+        function calculateMargin() {
+            // 获取输入值
+            const optionType = document.querySelector('input[name="optionType"]:checked').value;
+            const futurePrice = parseFloat(document.getElementById('futurePrice').value) || 0;
+            const strikePrice = parseFloat(document.getElementById('strikePrice').value) || 0;
+            const optionPrice = parseFloat(document.getElementById('optionPrice').value) || 0;
+            const contractUnit = parseFloat(document.getElementById('contractUnit').value) || 0;
+            const marginRatio = parseFloat(document.getElementById('marginRatio').value) || 0;
+            
+            // 计算标的期货交易保证金
+            const futureMargin = futurePrice * contractUnit * marginRatio;
+            
+            // 计算期权结算价部分
+            const optionSettlementPart = optionPrice * contractUnit;
+            
+            // 计算虚值额
+            let intrinsicValue;
+            if (optionType === 'call') {
+                // 看涨期权
+                intrinsicValue = Math.max(strikePrice - futurePrice, 0) * contractUnit;
+            } else {
+                // 看跌期权
+                intrinsicValue = Math.max(futurePrice - strikePrice, 0) * contractUnit;
+            }
+            
+            // 计算两个公式结果
+            const result1 = optionSettlementPart + futureMargin - (intrinsicValue / 2);
+            const result2 = optionSettlementPart + (futureMargin / 2);
+            
+            // 取最大值作为最终保证金
+            const finalMargin = Math.max(result1, result2);
+            
+            // 更新UI显示结果（保留两位小数并格式化）
+            document.getElementById('future-margin').textContent = formatNumber(futureMargin);
+            document.getElementById('option-settlement-part').textContent = formatNumber(optionSettlementPart);
+            document.getElementById('intrinsic-value').textContent = formatNumber(intrinsicValue);
+            document.getElementById('final-margin').textContent = formatNumber(finalMargin);
+        }
+        
+        // 格式化数字为带两位小数的金额格式
+        function formatNumber(num) {
+            return num.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        }
+    </script>
+</body>
+</html>
