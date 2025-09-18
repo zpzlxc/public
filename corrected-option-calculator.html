@@ -61,7 +61,7 @@
                             <label class="inline-flex items-center">
                                 <input type="radio" name="optionVariety" value="commodity" 
                                     class="w-4 h-4 text-primary focus:ring-primary border-gray-300">
-                                <span class="ml-2">沪银期货期权</span>
+                                <span class="ml-2">上期所期货期权</span>
                             </label>
                             <label class="inline-flex items-center">
                                 <input type="radio" name="optionVariety" value="stockIndex" checked
@@ -198,7 +198,7 @@
                 
                 <div class="grid md:grid-cols-2 gap-6 mt-4">
                     <div>
-                        <h3 class="font-medium mb-2">沪银期货期权</h3>
+                        <h3 class="font-medium mb-2">上期所期货期权</h3>
                         <div class="p-3 bg-neutral-light rounded-lg font-mono text-sm overflow-x-auto">
                             保证金 = MAX[期权结算价×单位 + 标的保证金 - (1/2)×虚值额, 
                             期权结算价×单位 + (1/2)×标的保证金]
@@ -228,7 +228,7 @@
                 <div class="mt-4 p-3 bg-blue-50 rounded-lg">
                     <h3 class="font-medium mb-2 text-primary">品种默认参数</h3>
                     <ul class="list-disc pl-5 space-y-1 text-sm">
-                        <li>沪银期货期权：保证金比例14%，合约单位15千克/手</li>
+                        <li>上期所期货期权：保证金比例14%，合约单位15千克/手</li>
                         <li>股指期权：保证金比例12%，合约单位100点/手</li>
                     </ul>
                 </div>
@@ -321,7 +321,7 @@
             // 计算两个公式结果 - 区分品种计算规则
             let result1, result2, finalMargin;
             if (optionVariety === 'commodity') {
-                // 沪银期货期权：扣除50%的虚值额
+                // 上期所期货期权：扣除50%的虚值额
                 result1 = optionSettlementPart + underlyingMargin - (outOfTheMoney / 2);
                 result2 = optionSettlementPart + (underlyingMargin / 2);
                 finalMargin = Math.max(result1, result2, 0);
