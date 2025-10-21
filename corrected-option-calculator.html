@@ -138,7 +138,7 @@
                             <input type="number" id="marginRatio" name="marginRatio" step="0.01" value="0.12"
                                 class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg input-focus transition duration-200">
                             <span class="flex items-center px-4 py-2 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg">
-                                （如14%填0.14）
+                                （如16%填0.16）
                             </span>
                         </div>
                     </div>
@@ -228,7 +228,7 @@
                 <div class="mt-4 p-3 bg-blue-50 rounded-lg">
                     <h3 class="font-medium mb-2 text-primary">品种默认参数</h3>
                     <ul class="list-disc pl-5 space-y-1 text-sm">
-                        <li>上期所期货期权：沪银保证金比例14%，合约单位15千克/手</li>
+                        <li>上期所期货期权：沪银保证金比例16%，合约单位15千克/手</li>
                         <li>股指期权：保证金比例12%，合约单位100点/手</li>
                     </ul>
                 </div>
@@ -250,7 +250,7 @@
                     // 根据选择的品种设置默认参数
                     if (this.value === 'commodity') {
                         document.getElementById('contractUnit').value = 15;
-                        document.getElementById('marginRatio').value = 0.14;
+                        document.getElementById('marginRatio').value = 0.16;
                         document.getElementById('unitLabel').textContent = '千克/手';
                         document.getElementById('underlyingPrice').value = 9950;
                         document.getElementById('strikePrice').value = 10500;
