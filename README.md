@@ -16,3 +16,10 @@ printf "AZURE_FEDERATED_TOKEN_FILE=%s\n" "${AZURE_FEDERATED_TOKEN_FILE:-<unset>}
 
 kubectl -n novoai exec deepcoach-backend-7bd94db75c-fpd8d -- env \
 | grep -E '^(POSTGRES_AUTH_MODE|POSTGRES_USER|POSTGRES_HOST|POSTGRES_DB|POSTGRES_SSL_MODE|POSTGRES_ENTRA_SCOPE|POSTGRES_ENTRA_AUTHORITY|AZURE_CLIENT_ID|AZURE_TENANT_ID|AZURE_FEDERATED_TOKEN_FILE)='
+
+kubectl -n novoai exec <pod名> -- python -c '
+import psycopg
+from app.core.postgres_auth import get_postgres_connection_kwargs
+conn = psycopg.connect(\*\*get_postgres_connection_kwargs(connect_timeout=5))
+print(conn.execute("select current_user, current_database()").fetchone())
+'
